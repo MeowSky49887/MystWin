@@ -117,7 +117,7 @@ Napi::Value mystwin::SendToBackExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, 1, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+	SetWindowPos(hwnd, HWND_NOTOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
 
 	return env.Null();
 }
@@ -138,7 +138,7 @@ Napi::Value mystwin::BringToFrontExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, 0, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+	SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
 		
 	return env.Null();
 }
