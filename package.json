@@ -13,14 +13,12 @@
     "configure": "node-gyp configure",
     "build": "node-gyp rebuild",
     "rebuild": "node-gyp rebuild",
-    "rebuild-electron": "electron-rebuild -f",
     "install": "node-gyp rebuild"
   },
   "author": "MeowSkyKung",
   "license": "ISC",
   "devDependencies": {
     "electron": "^35.0.1",
-    "@electron/rebuild": "^3.7.1",
     "node-gyp": "^11.1.0"
   },
   "dependencies": {
