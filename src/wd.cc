@@ -233,11 +233,50 @@ Napi::Value mystwin::ToggleOverlayExport(const Napi::CallbackInfo& info) {
 
 	bool enable = info[1].As<Napi::Boolean>().Value();
 
+	LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+
 	if (enable) {
-        SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-    } else {
-        SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_TRANSPARENT);
-    }
+		SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+	} else {
+		SetWindowLong(hwnd, GWL_EXSTYLE, (exStyle | WS_EX_LAYERED) & ~WS_EX_TRANSPARENT);
+	}
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+		
+	SetWindowPos(hwnd, workerw, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_FRAMECHANGED);
+
+	return env.Null();
+}
+
+Napi::Value mystwin::ToggleFrameExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 2 || !info[0].IsBuffer() || !info[1].IsBoolean()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	bool enable = info[1].As<Napi::Boolean>().Value();
+
+	LONG style = GetWindowLong(hwnd, GWL_STYLE);
+
+	if (enable) {
+		SetWindowLong(hwnd, GWL_STYLE, style | WS_CAPTION | WS_THICKFRAME);
+	} else {
+		SetWindowLong(hwnd, GWL_STYLE, style & ~(WS_CAPTION | WS_THICKFRAME));
+	}
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	SetWindowPos(hwnd, workerw, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_FRAMECHANGED);
 		
 	return env.Null();
 }
+

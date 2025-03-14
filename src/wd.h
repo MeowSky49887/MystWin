@@ -19,4 +19,5 @@ namespace mystwin {
 	Napi::Value ResizeWindowExport(const Napi::CallbackInfo& info);
 	Napi::Value SetOpacityExport(const Napi::CallbackInfo& info);
 	Napi::Value ToggleOverlayExport(const Napi::CallbackInfo& info);
+	Napi::Value ToggleFrameExport(const Napi::CallbackInfo& info);
 }
