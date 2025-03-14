@@ -1,6 +1,6 @@
-#include "wd.h"
+#include "mystwin.h"
 
-BOOL CALLBACK wd::FindWorkerW(HWND hwnd, LPARAM param) {
+BOOL CALLBACK mystwin::FindWorkerW(HWND hwnd, LPARAM param) {
 	HWND shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
 
 	if (shelldll) {
@@ -11,9 +11,18 @@ BOOL CALLBACK wd::FindWorkerW(HWND hwnd, LPARAM param) {
 	return TRUE;
 }
 
-void wd::AttachAsWallpaper(unsigned char* handleBuffer) {
-	auto handle = *reinterpret_cast<LONG_PTR*>(handleBuffer);
-	auto hwnd = (HWND)(LONG_PTR)handle;
+Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
 
 	auto progman = FindWindow(L"Progman", NULL);
 	auto result = SendMessageTimeout(
@@ -31,13 +40,24 @@ void wd::AttachAsWallpaper(unsigned char* handleBuffer) {
 
 	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
 
-	SetWindowLong(hwnd, GWL_EXSTYLE, WS_EX_LAYERED);
+	SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 	SetParent(hwnd, workerw);
+
+	return env.Null();
 }
 
-void wd::AttachAsIcons(unsigned char* handleBuffer) {
-	auto handle = *reinterpret_cast<LONG_PTR*>(handleBuffer);
-	auto hwnd = (HWND)(LONG_PTR)handle;
+Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
 
 	auto progman = FindWindow(L"Progman", NULL);
 	auto result = SendMessageTimeout(
@@ -50,6 +70,7 @@ void wd::AttachAsIcons(unsigned char* handleBuffer) {
 		NULL);
 
 	if (!result) {
+
 	}
 
 	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
@@ -58,68 +79,165 @@ void wd::AttachAsIcons(unsigned char* handleBuffer) {
 	GetWindowRect(hwnd, &rect);
 
 	SetWindowPos(hwnd, workerw, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+
+	return env.Null();
 }
 
-void wd::DetachWindow(unsigned char* handleBuffer) {
-	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(handleBuffer);
+Napi::Value mystwin::DetachWindowExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
 	HWND hwnd = (HWND)(LONG_PTR)handle;
 
 	SetParent(hwnd, NULL);
-}
-
-Napi::Value wd::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
-	auto env = info.Env();
-
-	if (info.Length() < 1) {
-		Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
-		return env.Null();
-	}
-
-	if (!info[0].IsBuffer()) {
-		Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-		return env.Null();
-	}
-
-	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>();
-
-	AttachAsWallpaper(windowHandleBuffer.Data());
+	
 	return env.Null();
 }
 
-Napi::Value wd::AttachAsIconsExport(const Napi::CallbackInfo& info) {
+Napi::Value mystwin::SendToBackExport(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
 
-	if (info.Length() < 1) {
-		Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
 		return env.Null();
 	}
 
-	if (!info[0].IsBuffer()) {
-		Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
-		return env.Null();
-	}
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
 
-	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>();
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
 
-	AttachAsIcons(windowHandleBuffer.Data());
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	SetWindowPos(hwnd, 1, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+
 	return env.Null();
 }
 
-Napi::Value wd::DetachWindowExport(const Napi::CallbackInfo& info) {
+Napi::Value mystwin::BringToFrontExport(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
 
-	if (info.Length() < 1) {
-		Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
 		return env.Null();
 	}
 
-	if (!info[0].IsBuffer()) {
-		Napi::TypeError::New(env, "Wrong arguments").ThrowAsJavaScriptException();
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	SetWindowPos(hwnd, 0, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+		
+	return env.Null();
+}
+
+Napi::Value mystwin::MoveWindowExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 3 || !info[0].IsBuffer() || !info[1].IsNumber() || !info[2].IsNumber()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
 		return env.Null();
 	}
 
-	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>();
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
 
-	DetachWindow(windowHandleBuffer.Data());
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	int x = info[1].As<Napi::Number>().Int32Value();
+	int y = info[2].As<Napi::Number>().Int32Value();
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	SetWindowPos(hwnd, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+		
+	return env.Null();
+}
+
+Napi::Value mystwin::ResizeWindowExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 3 || !info[0].IsBuffer() || !info[1].IsNumber() || !info[2].IsNumber()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	int width = info[1].As<Napi::Number>().Int32Value();
+	int height = info[2].As<Napi::Number>().Int32Value();
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	SetWindowPos(hwnd, NULL, rect.left, rect.top, width, height, 0x0000);
+		
+	return env.Null();
+}
+
+Napi::Value mystwin::SetOpacityExport(const Napi::CallbackInfo& info) {
+    auto env = info.Env();
+
+    if (info.Length() < 2 || !info[0].IsBuffer() || !info[1].IsNumber()) {
+        Napi::TypeError::New(env, "Invalid arguments. Expected (Buffer, Number)").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+    HWND hwnd = (HWND)(LONG_PTR)handle;
+
+    uint32_t opacityValue = info[1].As<Napi::Number>().Uint32Value();
+    if (opacityValue > 255) {
+        Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    BYTE opacity = static_cast<BYTE>(opacityValue);
+
+    SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+    SetLayeredWindowAttributes(hwnd, 0, opacity, LWA_ALPHA);
+
+    return env.Null();
+}
+
+Napi::Value mystwin::ToggleOverlayExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 2 || !info[0].IsBuffer() || !info[1].IsBoolean()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	bool enable = info[1].As<Napi::Boolean>().Value();
+
+	if (enable) {
+        SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+    } else {
+        SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) & ~WS_EX_TRANSPARENT);
+    }
+		
 	return env.Null();
 }

@@ -1,10 +1,10 @@
 {
   "targets": [
     {
-      "target_name": "window-desktop",
+      "target_name": "mystwin",
       "sources": [
         "src/bindings.cc",
-        "src/wd.cc"
+        "src/mystwin.cc"
       ],
       'include_dirs': ["<!@(node -p \"require('node-addon-api').include\")"],
       'dependencies': ["<!(node -p \"require('node-addon-api').gyp\")"],
