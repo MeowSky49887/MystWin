@@ -13,6 +13,7 @@ namespace mystwin {
 
 	Napi::Value AttachAsWallpaperExport(const Napi::CallbackInfo& info);
 	Napi::Value AttachAsDesktopExport(const Napi::CallbackInfo& info);
+	Napi::Value AttachToTopExport(const Napi::CallbackInfo& info);
 	Napi::Value DetachWindowExport(const Napi::CallbackInfo& info);
 	Napi::Value SendToBackExport(const Napi::CallbackInfo& info);
 	Napi::Value BringToFrontExport(const Napi::CallbackInfo& info);
@@ -21,4 +22,8 @@ namespace mystwin {
 	Napi::Value SetOpacityExport(const Napi::CallbackInfo& info);
 	Napi::Value ToggleOverlayExport(const Napi::CallbackInfo& info);
 	Napi::Value ToggleFrameExport(const Napi::CallbackInfo& info);
+	Napi::Value ToggleFullScreenExport(const Napi::CallbackInfo& info);
+	Napi::Value MaximizeExport(const Napi::CallbackInfo& info);
+	Napi::Value MinimizeExport(const Napi::CallbackInfo& info);
+	Napi::Value CloseExport(const Napi::CallbackInfo& info);
 }

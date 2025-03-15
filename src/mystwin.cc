@@ -83,6 +83,27 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 	return env.Null();
 }
 
+Napi::Value mystwin::AttachToTopExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	SetWindowPos(hwnd, HWND_TOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
+
+	return env.Null();
+}
+
 Napi::Value mystwin::DetachWindowExport(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
 
@@ -280,3 +301,99 @@ Napi::Value mystwin::ToggleFrameExport(const Napi::CallbackInfo& info) {
 	return env.Null();
 }
 
+Napi::Value mystwin::ToggleFullScreenExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 2 || !info[0].IsBuffer() || !info[1].IsBoolean()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	bool enable = info[1].As<Napi::Boolean>().Value();
+
+	LONG style = GetWindowLong(hwnd, GWL_STYLE);
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	if (enable) {
+		SetWindowLong(hwnd, GWL_STYLE, style & ~WS_OVERLAPPEDWINDOW);
+
+		MONITORINFO mi = { sizeof(mi) };
+        if (GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
+            SetWindowPos(hwnd, HWND_TOP, 
+                         mi.rcMonitor.left, mi.rcMonitor.top,
+                         mi.rcMonitor.right - mi.rcMonitor.left,
+                         mi.rcMonitor.bottom - mi.rcMonitor.top,
+                         SWP_NOZORDER | SWP_FRAMECHANGED);
+		}
+	} else {
+		SetWindowLong(hwnd, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
+		SetWindowPos(hwnd, HWND_TOP, 
+			rect.left, rect.top,
+			rect.right - rect.left,
+			rect.bottom - rect.top,
+			SWP_NOZORDER | SWP_FRAMECHANGED);
+	}
+
+	return env.Null();
+}
+
+Napi::Value mystwin::MaximizeExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	ShowWindow(hwnd, SW_MAXIMIZE);	
+
+	return env.Null();
+}
+
+Napi::Value mystwin::MinimizeExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	ShowWindow(hwnd, SW_MINIMIZE);	
+
+	return env.Null();
+}
+
+Napi::Value mystwin::CloseExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	DestroyWindow(hwnd);	
+
+	return env.Null();
+}
