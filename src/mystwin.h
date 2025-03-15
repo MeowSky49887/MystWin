@@ -7,6 +7,7 @@ namespace mystwin {
 	static int WM_SPAWN_WORKER = 0x052C;
 
 	static HWND workerw = NULL;
+	static HWND shelldll = NULL;
 
 	BOOL CALLBACK FindWorkerW(HWND, LPARAM);
 
