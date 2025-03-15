@@ -118,6 +118,11 @@ Napi::Value mystwin::DetachWindowExport(const Napi::CallbackInfo& info) {
 	HWND hwnd = (HWND)(LONG_PTR)handle;
 
 	SetParent(hwnd, NULL);
+
+	RECT rect;
+	GetWindowRect(hwnd, &rect);
+
+	SetWindowPos(hwnd, HWND_NOTOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
 	
 	return env.Null();
 }
