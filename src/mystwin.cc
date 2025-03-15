@@ -80,7 +80,7 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, workerw, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+	SetWindowPos(hwnd, workerw, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
 
 	return env.Null();
 }
@@ -119,7 +119,7 @@ Napi::Value mystwin::SendToBackExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_BOTTOM, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+	SetWindowPos(hwnd, HWND_BOTTOM, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
 
 	return env.Null();
 }
@@ -140,7 +140,7 @@ Napi::Value mystwin::BringToFrontExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+	SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
 		
 	return env.Null();
 }
@@ -164,7 +164,7 @@ Napi::Value mystwin::MoveWindowExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+	SetWindowPos(hwnd, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
 		
 	return env.Null();
 }
@@ -188,7 +188,7 @@ Napi::Value mystwin::ResizeWindowExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, NULL, rect.left, rect.top, width, height, 0x0000);
+	SetWindowPos(hwnd, NULL, rect.left, rect.top, width, height, SWP_NOACTIVATE);
 		
 	return env.Null();
 }
