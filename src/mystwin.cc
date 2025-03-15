@@ -1,7 +1,7 @@
 #include "mystwin.h"
 
 BOOL CALLBACK mystwin::FindWorkerW(HWND hwnd, LPARAM param) {
-	HWND shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
+	shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
 
 	if (shelldll) {
 		workerw = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
