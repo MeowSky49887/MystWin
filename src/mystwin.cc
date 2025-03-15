@@ -77,10 +77,8 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 
 	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
 
-	RECT rect;
-	GetWindowRect(hwnd, &rect);
-
-	SetWindowPos(hwnd, workerw, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
+	SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+	SetParent(hwnd, shelldll);
 
 	return env.Null();
 }
