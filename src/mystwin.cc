@@ -35,7 +35,8 @@ Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
 		NULL);
 
 	if (!result) {
-		
+	        Napi::TypeError::New(env, "Failed for unknown reason.").ThrowAsJavaScriptException();
+	        return env.Null();
 	}
 
 	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
@@ -70,7 +71,8 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 		NULL);
 
 	if (!result) {
-
+	        Napi::TypeError::New(env, "Failed for unknown reason.").ThrowAsJavaScriptException();
+	        return env.Null();
 	}
 
 	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
@@ -117,7 +119,7 @@ Napi::Value mystwin::SendToBackExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_BOTTOM, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+	SetWindowPos(hwnd, HWND_BOTTOM, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 
 	return env.Null();
 }
@@ -138,7 +140,7 @@ Napi::Value mystwin::BringToFrontExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0x0000);
+	SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
 		
 	return env.Null();
 }
@@ -195,7 +197,7 @@ Napi::Value mystwin::SetOpacityExport(const Napi::CallbackInfo& info) {
     auto env = info.Env();
 
     if (info.Length() < 2 || !info[0].IsBuffer() || !info[1].IsNumber()) {
-        Napi::TypeError::New(env, "Invalid arguments. Expected (Buffer, Number)").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Invalid arguments.").ThrowAsJavaScriptException();
         return env.Null();
     }
 
