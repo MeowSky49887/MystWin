@@ -99,7 +99,7 @@ Napi::Value mystwin::AttachToTopExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_TOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
+	SetWindowPos(hwnd, HWND_TOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, NULL);
 
 	return env.Null();
 }
@@ -122,7 +122,7 @@ Napi::Value mystwin::DetachWindowExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_NOTOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
+	SetWindowPos(hwnd, HWND_NOTOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, NULL);
 	
 	return env.Null();
 }
@@ -143,7 +143,7 @@ Napi::Value mystwin::SendToBackExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_BOTTOM, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
+	SetWindowPos(hwnd, HWND_BOTTOM, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, NULL);
 
 	return env.Null();
 }
@@ -164,7 +164,7 @@ Napi::Value mystwin::BringToFrontExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOACTIVATE);
+	SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, NULL);
 		
 	return env.Null();
 }
@@ -188,7 +188,7 @@ Napi::Value mystwin::MoveWindowExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(hwnd, NULL, x, y, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER);
 		
 	return env.Null();
 }
@@ -212,7 +212,7 @@ Napi::Value mystwin::ResizeWindowExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, NULL, rect.left, rect.top, width, height, SWP_NOZORDER | SWP_NOACTIVATE);
+	SetWindowPos(hwnd, NULL, rect.left, rect.top, width, height, SWP_NOZORDER);
 		
 	return env.Null();
 }
@@ -270,7 +270,7 @@ Napi::Value mystwin::ToggleTaskBarExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 		
-	SetWindowPos(hwnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+	SetWindowPos(hwnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED);
 
 	return env.Null();
 }
@@ -301,7 +301,7 @@ Napi::Value mystwin::ToggleFrameExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 
-	SetWindowPos(hwnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+	SetWindowPos(hwnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED);
 		
 	return env.Null();
 }
@@ -332,7 +332,7 @@ Napi::Value mystwin::ToggleOverlayExport(const Napi::CallbackInfo& info) {
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
 		
-	SetWindowPos(hwnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+	SetWindowPos(hwnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED);
 
 	return env.Null();
 }
@@ -362,11 +362,11 @@ Napi::Value mystwin::ToggleFullScreenExport(const Napi::CallbackInfo& info) {
 
 		MONITORINFO mi = { sizeof(mi) };
         if (GetMonitorInfo(MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY), &mi)) {
-            SetWindowPos(hwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+            SetWindowPos(hwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOZORDER | SWP_FRAMECHANGED);
 		}
 	} else {
 		SetWindowLong(hwnd, GWL_STYLE, style | WS_OVERLAPPEDWINDOW);
-		SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
+		SetWindowPos(hwnd, HWND_TOP, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED);
 	}
 
 	return env.Null();
