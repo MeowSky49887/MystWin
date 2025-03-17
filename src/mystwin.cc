@@ -293,9 +293,9 @@ Napi::Value mystwin::ToggleFrameExport(const Napi::CallbackInfo& info) {
 	LONG style = GetWindowLong(hwnd, GWL_STYLE);
 
 	if (enable) {
-		SetWindowLong(hwnd, GWL_STYLE, style | WS_CAPTION | WS_THICKFRAME);
-	} else {
 		SetWindowLong(hwnd, GWL_STYLE, style & ~(WS_CAPTION | WS_THICKFRAME));
+	} else {
+		SetWindowLong(hwnd, GWL_STYLE, style | WS_CAPTION | WS_THICKFRAME);
 	}
 
 	RECT rect;
