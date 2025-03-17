@@ -261,7 +261,7 @@ Napi::Value mystwin::ToggleTaskBarExport(const Napi::CallbackInfo& info) {
 
 	LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
 
-	ShowWindow(hwnd, SW_HIDE)
+	ShowWindow(hwnd, SW_HIDE);
 
 	if (enable) {
 		SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_APPWINDOW);
@@ -269,7 +269,7 @@ Napi::Value mystwin::ToggleTaskBarExport(const Napi::CallbackInfo& info) {
 		SetWindowLong(hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_APPWINDOW);
 	}
 
-	ShowWindow(hwnd, SW_SHOW)
+	ShowWindow(hwnd, SW_SHOW);
 
 	RECT rect;
 	GetWindowRect(hwnd, &rect);
