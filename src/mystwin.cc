@@ -263,14 +263,14 @@ Napi::Value mystwin::ToggleTaskBarExport(const Napi::CallbackInfo& info) {
 
 	if (enable) {
 		SetWindowLong(hwnd, GWL_EXSTYLE, exStyle | WS_EX_APPWINDOW);
+		SetWindowLong(hwnd, GWLP_HWNDPARENT, 0);
 	} else {
 		SetWindowLong(hwnd, GWL_EXSTYLE, exStyle & ~WS_EX_APPWINDOW);
+		SetWindowLong(hwnd, GWLP_HWNDPARENT, (LONG_PTR)GetDesktopWindow());
 	}
 
-	RECT rect;
-	GetWindowRect(hwnd, &rect);
-		
-	SetWindowPos(hwnd, NULL, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER | SWP_FRAMECHANGED);
+	ShowWindow(hwnd, SW_HIDE);
+	ShowWindow(hwnd, SW_SHOW);
 
 	return env.Null();
 }
