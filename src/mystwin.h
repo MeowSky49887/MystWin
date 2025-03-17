@@ -20,6 +20,7 @@ namespace mystwin {
 	Napi::Value MoveWindowExport(const Napi::CallbackInfo& info);
 	Napi::Value ResizeWindowExport(const Napi::CallbackInfo& info);
 	Napi::Value SetOpacityExport(const Napi::CallbackInfo& info);
+	Napi::Value ToggleTaskBarExport(const Napi::CallbackInfo& info);
 	Napi::Value ToggleOverlayExport(const Napi::CallbackInfo& info);
 	Napi::Value ToggleFrameExport(const Napi::CallbackInfo& info);
 	Napi::Value ToggleFullScreenExport(const Napi::CallbackInfo& info);
