@@ -21,34 +21,34 @@ void mystwin::FindWorkerW(const Napi::Env env) {
 			}
 		}
 
-		wchar_t className[256];
-        GetClassName(hwnd, className, sizeof(hwnd));
-        if (wcscmp(className, L"WorkerW") == 0) {
-            HWND potentialWorker = hwnd;
-            HWND parent = GetParent(potentialWorker);
-            if (parent == (HWND)0 || parent == FindWindow(L"Progman", NULL)) {
-                 if (FindWindowEx(potentialWorker, NULL, L"SHELLDLL_DefView", NULL) == NULL) {
-                    *((HWND*)param) = potentialWorker;
-                    return FALSE;
-                 }
-            }
-        }
+		// wchar_t className[256];
+        // GetClassName(hwnd, className, sizeof(hwnd));
+        // if (wcscmp(className, L"WorkerW") == 0) {
+        //     HWND potentialWorker = hwnd;
+        //     HWND parent = GetParent(potentialWorker);
+        //     if (parent == (HWND)0 || parent == FindWindow(L"Progman", NULL)) {
+        //          if (FindWindowEx(potentialWorker, NULL, L"SHELLDLL_DefView", NULL) == NULL) {
+        //             *((HWND*)param) = potentialWorker;
+        //             return FALSE;
+        //          }
+        //     }
+        // }
 
 		return TRUE;
 	}, (LPARAM)&workerw);	
 
 	
-    if (!workerw) {
-        EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
-            wchar_t className[256];
-            GetClassName(hwnd, className, sizeof(className));
-            if (wcscmp(className, L"WorkerW") == 0) {
-                *((HWND*)param) = hwnd;
-                return FALSE;
-            }
-            return TRUE;
-        }, (LPARAM)&workerw);
-    }
+    // if (!workerw) {
+    //     EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
+    //         wchar_t className[256];
+    //         GetClassName(hwnd, className, sizeof(className));
+    //         if (wcscmp(className, L"WorkerW") == 0) {
+    //             *((HWND*)param) = hwnd;
+    //             return FALSE;
+    //         }
+    //         return TRUE;
+    //     }, (LPARAM)&workerw);
+    // }
 }
 
 Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
