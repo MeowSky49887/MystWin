@@ -26,7 +26,7 @@ void mystwin::FindWorkerW() {
 			}
 		}
 
-		char className[256];
+		wchar_t className[256];
         GetClassName(hwnd, className, sizeof(hwnd));
         if (strcmp(className, "WorkerW") == 0) {
             HWND potentialWorker = hwnd;
@@ -45,7 +45,7 @@ void mystwin::FindWorkerW() {
 	
     if (!workerw) {
         EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
-            char className[256];
+            wchar_t className[256];
             GetClassName(hwnd, className, sizeof(className));
             if (strcmp(className, "WorkerW") == 0) {
                 *((HWND*)param) = hwnd;
