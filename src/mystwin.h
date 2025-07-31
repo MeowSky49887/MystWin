@@ -2,6 +2,7 @@
 
 #include <napi.h>
 #include <windows.h>
+#include <cwchar>
 
 namespace mystwin {
 	static int WM_SPAWN_WORKER = 0x052C;
