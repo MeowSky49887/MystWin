@@ -1,35 +1,33 @@
 #include "mystwin.h"
 
-BOOL CALLBACK mystwin::FindWorkerW(HWND hwnd, LPARAM param) {
-	shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
-
-	if (shelldll) {
-		workerw = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
-		if (workerw) {
-			return FALSE;
-		}
-	}
-
-	return TRUE;
-}
-
-void mystwin::WrapFindWorkerW(const Napi::Env env) {
+void mystwin::FindWorkerW(const Napi::Env env) {
     auto progman = FindWindow(L"Progman", NULL);
     SendMessageTimeout(progman, WM_SPAWN_WORKER, 0, 0, SMTO_NORMAL, 1000, NULL);
 
-    EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
+	EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
+		wchar_t className[256];
+		GetClassName(hwnd, className, sizeof(className) / sizeof(wchar_t));
+		if (wcscmp(className, L"WorkerW") == 0) {
+			*((HWND*)param) = hwnd;
+			return FALSE;
+		}
+		return TRUE;
+	}, reinterpret_cast<LPARAM>(&workerw));
+}
 
-    if (!workerw) {
-        EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
-            wchar_t className[256];
-            GetClassName(hwnd, className, sizeof(className) / sizeof(wchar_t));
-            if (wcscmp(className, L"WorkerW") == 0) {
-                *((HWND*)param) = hwnd;
-                return FALSE;
-            }
-            return TRUE;
-        }, reinterpret_cast<LPARAM>(&workerw));
-    }
+void mystwin::FindShellDll(const Napi::Env env) {
+    auto progman = FindWindow(L"Progman", NULL);
+    SendMessageTimeout(progman, WM_SPAWN_WORKER, 0, 0, SMTO_NORMAL, 1000, NULL);
+
+    EnumWindows([](HWND hwnd, LPARAM param) -> BOOL {
+		shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
+
+		if (shelldll) {
+			return FALSE;
+		}
+
+		return TRUE;
+	}, reinterpret_cast<LPARAM>(&workerw));
 }
 
 Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
@@ -45,7 +43,7 @@ Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
 	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
 	HWND hwnd = (HWND)(LONG_PTR)handle;
 
-	WrapFindWorkerW(env);
+	FindWorkerW(env);
 
 	if (!workerw) {
 	        Napi::TypeError::New(env, "WorkerW not found.").ThrowAsJavaScriptException();
@@ -71,7 +69,7 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
 	HWND hwnd = (HWND)(LONG_PTR)handle;
 
-	WrapFindWorkerW(env);
+	FindShellDll(env);
 
 	if (!shelldll) {
 	        Napi::TypeError::New(env, "ShellDll not found.").ThrowAsJavaScriptException();
