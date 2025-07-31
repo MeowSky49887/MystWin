@@ -11,11 +11,6 @@ void mystwin::FindWorkerW(const Napi::Env env) {
 		1000,
 		NULL);
 
-	if (!result) {
-	        Napi::TypeError::New(env, "Failed for unknown reason.").ThrowAsJavaScriptException();
-	        return env.Null();
-	}
-
 	EnumWindows([](HWND hwnd, LPARAM param) -> BOOL {
 		shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
 
