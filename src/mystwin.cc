@@ -1,6 +1,6 @@
 #include "mystwin.h"
 
-void mystwin::FindWorkerW() {
+void mystwin::FindWorkerW(const Napi::Env env) {	
 	auto progman = FindWindow(L"Progman", NULL);
 	auto result = SendMessageTimeout(
 		progman,
@@ -69,7 +69,7 @@ Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
 	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
 	HWND hwnd = (HWND)(LONG_PTR)handle;
 
-	FindWorkerW();
+	FindWorkerW(env);
 
 	if (!workerw) {
 	        Napi::TypeError::New(env, "WorkerW not found.").ThrowAsJavaScriptException();
@@ -95,7 +95,7 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
 	HWND hwnd = (HWND)(LONG_PTR)handle;
 
-	FindWorkerW();
+	FindWorkerW(env);
 
 	if (!shelldll) {
 	        Napi::TypeError::New(env, "ShellDll not found.").ThrowAsJavaScriptException();
