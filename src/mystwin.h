@@ -10,7 +10,8 @@ namespace mystwin {
 	static HWND workerw = NULL;
 	static HWND shelldll = NULL;
 
-	void FindWorkerW(const Napi::Env env);
+	BOOL CALLBACK FindWorkerW(HWND hwnd, LPARAM param);
+	void WrapFindWorkerW(const Napi::Env env);
 
 	Napi::Value AttachAsWallpaperExport(const Napi::CallbackInfo& info);
 	Napi::Value AttachAsDesktopExport(const Napi::CallbackInfo& info);
