@@ -41,6 +41,11 @@ Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
 
 	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
 
+	if (!workerw) {
+	        Napi::TypeError::New(env, "WorkerW not found.").ThrowAsJavaScriptException();
+	        return env.Null();
+	}
+
 	SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 	SetParent(hwnd, workerw);
 
@@ -76,6 +81,11 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 	}
 
 	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
+
+	if (!shelldll) {
+	        Napi::TypeError::New(env, "ShelDll not found.").ThrowAsJavaScriptException();
+	        return env.Null();
+	}
 
 	SetWindowLong(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
 	SetParent(hwnd, shelldll);
