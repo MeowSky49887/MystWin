@@ -1,29 +1,6 @@
 #include "mystwin.h"
 
-BOOL CALLBACK mystwin::FindWorkerW(HWND hwnd, LPARAM param) {
-	shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
-
-	if (shelldll) {
-		workerw = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
-	auto env = info.Env();
-
-	if (info.Length() < 1 || !info[0].IsBuffer()) {
-		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
-		return env.Null();
-	}
-
-	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
-
-	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
-	HWND hwnd = (HWND)(LONG_PTR)handle;
-
+void mystwin::FindWorkerW() {
 	auto progman = FindWindow(L"Progman", NULL);
 	auto result = SendMessageTimeout(
 		progman,
@@ -39,7 +16,60 @@ Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
 	        return env.Null();
 	}
 
-	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
+	EnumWindows([](HWND hwnd, LPARAM param) -> BOOL {
+		shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
+
+		if (shelldll) {
+			workerw = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
+			if (workerw) {
+				return FALSE;
+			}
+		}
+
+		char className[256];
+        GetClassName(hwnd, className, sizeof(hwnd));
+        if (strcmp(className, "WorkerW") == 0) {
+            HWND potentialWorker = hwnd;
+            HWND parent = GetParent(potentialWorker);
+            if (parent == (HWND)0 || parent == FindWindow("Progman", NULL)) {
+                 if (FindWindowEx(potentialWorker, NULL, L"SHELLDLL_DefView", NULL) == NULL) {
+                    *((HWND*)param) = potentialWorker;
+                    return FALSE;
+                 }
+            }
+        }
+
+		return TRUE;
+	}, (LPARAM)&workerw);	
+
+	
+    if (!workerw) {
+        EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
+            char className[256];
+            GetClassName(hwnd, className, sizeof(className));
+            if (strcmp(className, "WorkerW") == 0) {
+                *((HWND*)param) = hwnd;
+                return FALSE;
+            }
+            return TRUE;
+        }, (LPARAM)&workerw);
+    }
+}
+
+Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	if (info.Length() < 1 || !info[0].IsBuffer()) {
+		Napi::TypeError::New(env, "Invalid arguments").ThrowAsJavaScriptException();
+		return env.Null();
+	}
+
+	auto windowHandleBuffer = info[0].As<Napi::Buffer<uint8_t>>().Data();
+
+	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
+	HWND hwnd = (HWND)(LONG_PTR)handle;
+
+	FindWorkerW();
 
 	if (!workerw) {
 	        Napi::TypeError::New(env, "WorkerW not found.").ThrowAsJavaScriptException();
@@ -65,25 +95,10 @@ Napi::Value mystwin::AttachAsDesktopExport(const Napi::CallbackInfo& info) {
 	LONG_PTR handle = *reinterpret_cast<LONG_PTR*>(windowHandleBuffer);
 	HWND hwnd = (HWND)(LONG_PTR)handle;
 
-	auto progman = FindWindow(L"Progman", NULL);
-	auto result = SendMessageTimeout(
-		progman,
-		WM_SPAWN_WORKER,
-		NULL,
-		NULL,
-		SMTO_NORMAL,
-		1000,
-		NULL);
-
-	if (!result) {
-	        Napi::TypeError::New(env, "Failed for unknown reason.").ThrowAsJavaScriptException();
-	        return env.Null();
-	}
-
-	EnumWindows(&FindWorkerW, reinterpret_cast<LPARAM>(&workerw));
+	FindWorkerW();
 
 	if (!shelldll) {
-	        Napi::TypeError::New(env, "ShelDll not found.").ThrowAsJavaScriptException();
+	        Napi::TypeError::New(env, "ShellDll not found.").ThrowAsJavaScriptException();
 	        return env.Null();
 	}
 
