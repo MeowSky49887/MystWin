@@ -1,7 +1,7 @@
 #include "mystwin.h"
 
-void mystwin::FindWorkerW(const Napi::Env env) {	
-	auto progman = FindWindow(L"Progman", NULL);
+void mystwin::FindWorkerW(const Napi::Env env) {
+    auto progman = FindWindow(L"Progman", NULL);
 	auto result = SendMessageTimeout(
 		progman,
 		WM_SPAWN_WORKER,
@@ -9,46 +9,57 @@ void mystwin::FindWorkerW(const Napi::Env env) {
 		NULL,
 		SMTO_NORMAL,
 		1000,
-		NULL);
+		NULL
+	);
 
-	EnumWindows([](HWND hwnd, LPARAM param) -> BOOL {
-		shelldll = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
+    struct WorkerData {
+        HWND shelldll = nullptr;
+        HWND workerw = nullptr;
+    } data;
 
-		if (shelldll) {
-			workerw = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
-			if (workerw) {
-				return FALSE;
-			}
-		}
+    EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL {
+        WorkerData* out = reinterpret_cast<WorkerData*>(lParam);
 
-		// wchar_t className[256];
-        // GetClassName(hwnd, className, sizeof(hwnd));
-        // if (wcscmp(className, L"WorkerW") == 0) {
-        //     HWND potentialWorker = hwnd;
-        //     HWND parent = GetParent(potentialWorker);
-        //     if (parent == (HWND)0 || parent == FindWindow(L"Progman", NULL)) {
-        //          if (FindWindowEx(potentialWorker, NULL, L"SHELLDLL_DefView", NULL) == NULL) {
-        //             *((HWND*)param) = potentialWorker;
-        //             return FALSE;
-        //          }
-        //     }
-        // }
+        HWND shell = FindWindowEx(hwnd, NULL, L"SHELLDLL_DefView", NULL);
+        if (shell) {
+            HWND worker = FindWindowEx(NULL, hwnd, L"WorkerW", NULL);
+            if (worker) {
+                out->shelldll = shell;
+                out->workerw = worker;
+                return FALSE;
+            }
+        }
 
-		return TRUE;
-	}, (LPARAM)&workerw);	
+        wchar_t className[256];
+        GetClassName(hwnd, className, sizeof(className) / sizeof(wchar_t));
+        if (wcscmp(className, L"WorkerW") == 0) {
+            HWND potentialWorker = hwnd;
+            HWND parent = GetParent(potentialWorker);
+            if (parent == nullptr || parent == FindWindow(L"Progman", NULL)) {
+                if (FindWindowEx(potentialWorker, NULL, L"SHELLDLL_DefView", NULL) == NULL) {
+                    out->workerw = potentialWorker;
+                    return FALSE;
+                }
+            }
+        }
 
-	
-    // if (!workerw) {
-    //     EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
-    //         wchar_t className[256];
-    //         GetClassName(hwnd, className, sizeof(className));
-    //         if (wcscmp(className, L"WorkerW") == 0) {
-    //             *((HWND*)param) = hwnd;
-    //             return FALSE;
-    //         }
-    //         return TRUE;
-    //     }, (LPARAM)&workerw);
-    // }
+        return TRUE;
+    }, reinterpret_cast<LPARAM>(&data));
+
+    if (!data.workerw) {
+        EnumChildWindows(progman, [](HWND hwnd, LPARAM param) -> BOOL {
+            wchar_t className[256];
+            GetClassName(hwnd, className, sizeof(className) / sizeof(wchar_t));
+            if (wcscmp(className, L"WorkerW") == 0) {
+                *((HWND*)param) = hwnd;
+                return FALSE;
+            }
+            return TRUE;
+        }, reinterpret_cast<LPARAM>(&data.workerw));
+    }
+
+    shelldll = data.shelldll;
+    workerw = data.workerw;
 }
 
 Napi::Value mystwin::AttachAsWallpaperExport(const Napi::CallbackInfo& info) {
