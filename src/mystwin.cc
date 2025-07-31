@@ -31,7 +31,7 @@ void mystwin::FindWorkerW() {
         if (wcscmp(className, L"WorkerW") == 0) {
             HWND potentialWorker = hwnd;
             HWND parent = GetParent(potentialWorker);
-            if (parent == (HWND)0 || parent == FindWindow("Progman", NULL)) {
+            if (parent == (HWND)0 || parent == FindWindow(L"Progman", NULL)) {
                  if (FindWindowEx(potentialWorker, NULL, L"SHELLDLL_DefView", NULL) == NULL) {
                     *((HWND*)param) = potentialWorker;
                     return FALSE;
