@@ -12,8 +12,8 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	exports.Set(Napi::String::New(env, "moveWindow"), Napi::Function::New(env, mystwin::MoveWindowExport));
 	exports.Set(Napi::String::New(env, "resizeWindow"), Napi::Function::New(env, mystwin::ResizeWindowExport));
 	exports.Set(Napi::String::New(env, "setOpacity"), Napi::Function::New(env, mystwin::SetOpacityExport));
-	exports.Set(Napi::String::New(env, "toggleTaskBar"), Napi::Function::New(env, mystwin::ToggleTaskBarExport));
 	exports.Set(Napi::String::New(env, "toggleFrame"), Napi::Function::New(env, mystwin::ToggleFrameExport));
+	exports.Set(Napi::String::New(env, "toggleTaskBar"), Napi::Function::New(env, mystwin::ToggleTaskBarExport));
 	exports.Set(Napi::String::New(env, "toggleOverlay"), Napi::Function::New(env, mystwin::ToggleOverlayExport));
 	exports.Set(Napi::String::New(env, "toggleFullScreen"), Napi::Function::New(env, mystwin::ToggleFullScreenExport));
 	exports.Set(Napi::String::New(env, "maximize"), Napi::Function::New(env, mystwin::MaximizeExport));
