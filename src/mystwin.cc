@@ -160,7 +160,7 @@ Napi::Value mystwin::Refresh(const Napi::CallbackInfo& info, std::string action)
 	SetParent(hwnd, cache.parent);
 	SetWindowLong(hwnd, GWL_STYLE, style);
 	SetWindowLong(hwnd, GWL_EXSTYLE, exStyle);
-	SetWindowPos(hwnd, NULL, 0, 0, 0, 0, NULL);
+	SetWindowPos(hwnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_FRAMECHANGED);
 	SetWindowPos(hwnd, insert, xPos, yPos, width, height, flags);
 	SetLayeredWindowAttributes(hwnd, 0, opacity, LWA_ALPHA);
 
